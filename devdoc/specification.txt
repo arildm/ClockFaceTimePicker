@@ -1,0 +1,39 @@
+Arlarm specification
+====================
+
+1. Purpose and scope
+--------------------
+
+Through this smartphone application, the user should be able to:
+- set multiple labelled alarms
+- set multiple labelled timers 
+
+Note that, since the main purpose of the application is to implement the timepicker component, the rest of the app is of secondary priority and only loosely specified.
+
+2. Timepicker
+-------------
+
+The idea of this timepicker component is to provide a quicker use than
+Android's default picker. It attempts to accomplish this by presenting
+circular sliders resembling the face of a clock: one for hours and one
+for minutes. The usual spinner is present as well, to display the chosen
+time numerically as well as to allow for stepwise adjustment.
+
+One piece of specification that is not yet entirely clear, is how to
+allow for am/pm picking without breaking the clock face analogy.
+
+Specification
+-------------
+
+(Also see design sketches.)
+
+The main area of the component consists of two circular slider controls,
+one within the other. The inner is for hours and the outer is for
+minutes. The inner is split in two rounds so that one round covers 12
+hours and both am and pm can be chosen through the slider.
+
+Above the circular sliders sits a traditional set of time picker
+spinners, featuring triangular (arrowhead) buttons for stepwise
+increment and decrement.
+
+The spinner and the sliders are synchronized.
