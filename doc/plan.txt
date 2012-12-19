@@ -1,0 +1,24 @@
+Project plan for Arlarm and ArlaTimePicker (ATP)
+================================================
+
+This is an ordered list of macro-tasks. There are no time estimations because there are no deadlines.
+
+--
+
+Setup project on GitHub - DONE
+
+Specify ATP with sketches and description
+
+Create Eclipse project for ATP library
+
+Develop a decent version of ATP
+
+Specify Arlarm with sketches and description
+
+Create Eclipse project for Arlarm
+
+Develop first version of Arlarm
+
+Find better names LOL!
+
+Extract ATP to separate (GitHub) project???
