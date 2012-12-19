@@ -1,6 +1,4 @@
-arlarm
-======
+ClockFaceTimePicker
+===================
 
-Alarm and timer for Android with beautiful timepicker.
-
-The app's main purpose is to introduce a timepicker, designed for quick use and a slick appearance.
+A circular timepicker View for Android, designed for quick use and a slick appearance.
