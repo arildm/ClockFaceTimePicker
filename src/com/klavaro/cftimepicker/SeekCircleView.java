@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -15,15 +16,11 @@ import android.widget.SeekBar;
  * TODO: document your custom view class.
  */
 public class SeekCircleView extends SeekBar {
-	private String mExampleString; // TODO: use a default from R.string...
-	private int mExampleColor = Color.RED; // TODO: use a default from
-											// R.color...
-	private float mExampleDimension = 0; // TODO: use a default from R.dimen...
-	private Drawable mExampleDrawable;
-
-	private TextPaint mTextPaint;
-	private float mTextWidth;
-	private float mTextHeight;
+	private Paint basicPaint;
+	private int value;
+	private int min;
+	private int max;
+	private boolean showHand;
 
 	public SeekCircleView(Context context) {
 		super(context);
@@ -44,149 +41,68 @@ public class SeekCircleView extends SeekBar {
 		// Load attributes
 		final TypedArray a = getContext().obtainStyledAttributes(attrs,
 				R.styleable.SeekCircleView, defStyle, 0);
-
-		mExampleString = a.getString(R.styleable.SeekCircleView_exampleString);
-		mExampleColor = a.getColor(R.styleable.SeekCircleView_exampleColor,
-				mExampleColor);
-		// Use getDimensionPixelSize or getDimensionPixelOffset when dealing
-		// with
-		// values that should fall on pixel boundaries.
-		mExampleDimension = a.getDimension(
-				R.styleable.SeekCircleView_exampleDimension, mExampleDimension);
-
-		if (a.hasValue(R.styleable.SeekCircleView_exampleDrawable)) {
-			mExampleDrawable = a
-					.getDrawable(R.styleable.SeekCircleView_exampleDrawable);
-			mExampleDrawable.setCallback(this);
-		}
+		
+		// Handle attributes
 
 		a.recycle();
 
-		// Set up a default TextPaint object
-		mTextPaint = new TextPaint();
-		mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		mTextPaint.setTextAlign(Paint.Align.LEFT);
+		// Set up basic Paint
+		basicPaint = new Paint();
 
-		// Update TextPaint and text measurements from attributes
-		invalidateTextPaintAndMeasurements();
+		invalidateAppearance();
 	}
 
-	private void invalidateTextPaintAndMeasurements() {
-		mTextPaint.setTextSize(mExampleDimension);
-		mTextPaint.setColor(mExampleColor);
-		mTextWidth = mTextPaint.measureText(mExampleString);
-
-		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-		mTextHeight = fontMetrics.bottom;
+	private void invalidateAppearance() {
+		// update appearance from supposedly modified fields
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-
-		// TODO: consider storing these as member variables to reduce
-		// allocations per draw cycle.
-		int paddingLeft = getPaddingLeft();
-		int paddingTop = getPaddingTop();
-		int paddingRight = getPaddingRight();
-		int paddingBottom = getPaddingBottom();
-
-		int contentWidth = getWidth() - paddingLeft - paddingRight;
-		int contentHeight = getHeight() - paddingTop - paddingBottom;
-
-		// Draw the text.
-		canvas.drawText(mExampleString, paddingLeft
-				+ (contentWidth - mTextWidth) / 2, paddingTop
-				+ (contentHeight + mTextHeight) / 2, mTextPaint);
-
-		// Draw the example drawable on top of the text.
-		if (mExampleDrawable != null) {
-			mExampleDrawable.setBounds(paddingLeft, paddingTop, paddingLeft
-					+ contentWidth, paddingTop + contentHeight);
-			mExampleDrawable.draw(canvas);
+		
+		// TODO Can we use canvas.getClipBounds or similar?
+		RectF rectf_full = new RectF(getPaddingLeft(), getPaddingTop(),
+				getWidth()-getPaddingRight(), getHeight()-getPaddingBottom());
+		canvas.drawArc(rectf_full, 0, theta(), false, basicPaint);
+		if (showHand) {
+			// TODO Figure out where to do these calculations. When could W&H be changed?
+			float centerX = getWidth() / 2;
+			float centerY = getHeight() / 2;
+			float stopX = centerX * (1 + (float) Math.cos(Math.toRadians(90-theta())));
+			float stopY = centerY * (1 + (float) Math.sin(Math.toRadians(90-theta())));
+			canvas.drawLine(centerX, centerY, stopX, stopY, basicPaint);
 		}
 	}
 
-	/**
-	 * Gets the example string attribute value.
-	 * 
-	 * @return The example string attribute value.
-	 */
-	public String getExampleString() {
-		return mExampleString;
+	private float theta() {
+		return (float) (value - min) / (float) (max - min) * 360;
 	}
-
-	/**
-	 * Sets the view's example string attribute value. In the example view, this
-	 * string is the text to draw.
-	 * 
-	 * @param exampleString
-	 *            The example string attribute value to use.
-	 */
-	public void setExampleString(String exampleString) {
-		mExampleString = exampleString;
-		invalidateTextPaintAndMeasurements();
+	
+	public int getValue() {
+		return value;
 	}
-
-	/**
-	 * Gets the example color attribute value.
-	 * 
-	 * @return The example color attribute value.
-	 */
-	public int getExampleColor() {
-		return mExampleColor;
+	
+	public void setValue(int newValue) {
+		if (newValue < min || newValue > max)
+			throw new IllegalArgumentException("Value must < range");
+		value = newValue;
+		invalidateAppearance();
 	}
-
-	/**
-	 * Sets the view's example color attribute value. In the example view, this
-	 * color is the font color.
-	 * 
-	 * @param exampleColor
-	 *            The example color attribute value to use.
-	 */
-	public void setExampleColor(int exampleColor) {
-		mExampleColor = exampleColor;
-		invalidateTextPaintAndMeasurements();
+	
+	public int getRangeMin() {
+		return min;
 	}
-
-	/**
-	 * Gets the example dimension attribute value.
-	 * 
-	 * @return The example dimension attribute value.
-	 */
-	public float getExampleDimension() {
-		return mExampleDimension;
+	
+	public int getRangeMax() {
+		return max;
 	}
-
-	/**
-	 * Sets the view's example dimension attribute value. In the example view,
-	 * this dimension is the font size.
-	 * 
-	 * @param exampleDimension
-	 *            The example dimension attribute value to use.
-	 */
-	public void setExampleDimension(float exampleDimension) {
-		mExampleDimension = exampleDimension;
-		invalidateTextPaintAndMeasurements();
-	}
-
-	/**
-	 * Gets the example drawable attribute value.
-	 * 
-	 * @return The example drawable attribute value.
-	 */
-	public Drawable getExampleDrawable() {
-		return mExampleDrawable;
-	}
-
-	/**
-	 * Sets the view's example drawable attribute value. In the example view,
-	 * this drawable is drawn above the text.
-	 * 
-	 * @param exampleDrawable
-	 *            The example drawable attribute value to use.
-	 */
-	public void setExampleDrawable(Drawable exampleDrawable) {
-		mExampleDrawable = exampleDrawable;
+	
+	public void setRange(int newMin, int newMax) {
+		if (newMin >= newMax)
+			throw new IllegalArgumentException("newMin must < newMax");
+		min = newMin;
+		max = newMax;
+		if (value > max) value = max;
+		else if (value < min) value = min;
 	}
 }
